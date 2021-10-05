@@ -1,12 +1,19 @@
 package com.novemberain.quartz.mongodb.db;
 
-import com.mongodb.*;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientURI;
+import com.mongodb.MongoCredential;
+import com.mongodb.MongoException;
+import com.mongodb.ServerAddress;
+import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.quartz.SchedulerConfigException;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The implementation of {@link MongoConnector} that owns the lifecycle of {@link MongoClient}.
@@ -58,9 +65,9 @@ public class InternalMongoConnector implements MongoConnector {
      * @throws SchedulerConfigException if failed to create instance of MongoClient.
      */
     public InternalMongoConnector(final WriteConcern writeConcern, final List<ServerAddress> seeds,
-                                  final List<MongoCredential> credentialsList, final MongoClientOptions options,
+                                  final MongoCredential credential, final MongoClientOptions options,
                                   final String dbName) throws SchedulerConfigException {
-        this(writeConcern, createClient(seeds, credentialsList, options), dbName);
+        this(writeConcern, createClient(seeds, credential, options), dbName);
     }
 
     @Override
@@ -101,10 +108,10 @@ public class InternalMongoConnector implements MongoConnector {
      * Creates an instance of MongoClient from server addresses, credentials and options wrapping exception.
      */
     private static MongoClient createClient(final List<ServerAddress> seeds,
-                                            final List<MongoCredential> credentialsList,
+                                            final MongoCredential credential,
                                             final MongoClientOptions options) throws SchedulerConfigException {
         try {
-            return new MongoClient(seeds, credentialsList, options);
+            return new MongoClient(seeds, credential, options);
         } catch (MongoException e) {
             throw new SchedulerConfigException("MongoDB driver thrown an exception.", e);
         }

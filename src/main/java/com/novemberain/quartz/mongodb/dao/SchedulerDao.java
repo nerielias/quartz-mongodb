@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.mongodb.client.model.Sorts.ascending;
 
@@ -103,7 +104,7 @@ public class SchedulerDao {
      * @return schedler instances ordered by last check-in time
      */
     public List<Scheduler> getAllByCheckinTime() {
-        final List<Scheduler> schedulers = new LinkedList<Scheduler>();
+        final List<Scheduler> schedulers = new LinkedList<>();
         schedulerCollection
                 .find()
                 .sort(ascending(LAST_CHECKIN_TIME_FIELD))
@@ -154,11 +155,10 @@ public class SchedulerDao {
                     .append(CHECKIN_INTERVAL_FIELD, clusterCheckinIntervalMillis));
     }
 
-    private Block<Document> createResultConverter(final List<Scheduler> schedulers) {
-        return new Block<Document>() {
-            @Override
-            public void apply(Document document) {
-                schedulers.add(toScheduler(document));
+    private Consumer<Document> createResultConverter(final List<Scheduler> schedulers) {
+        return new Consumer<Document>() {
+            public void accept(Document document) {
+                schedulers.add(SchedulerDao.this.toScheduler(document));
             }
         };
     }

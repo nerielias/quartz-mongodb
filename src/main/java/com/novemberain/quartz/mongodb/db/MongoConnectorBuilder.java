@@ -7,6 +7,7 @@ import org.quartz.SchedulerConfigException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -87,9 +88,9 @@ public class MongoConnectorBuilder {
 
         checkNotNull(addresses, "At least one MongoDB address or a MongoDB URI must be specified.");
         final List<ServerAddress> serverAddresses = collectServerAddresses();
-        final List<MongoCredential> credentials = createCredentials();
+        final MongoCredential credential = createCredentials();
         final MongoClientOptions options = createOptions();
-        return new InternalMongoConnector(writeConcern, serverAddresses, credentials, options, dbName);
+        return new InternalMongoConnector(writeConcern, serverAddresses, credential, options, dbName);
     }
 
     private List<ServerAddress> collectServerAddresses() {
@@ -100,7 +101,7 @@ public class MongoConnectorBuilder {
         return serverAddresses;
     }
 
-    private List<MongoCredential> createCredentials() {
+    private MongoCredential createCredentials() {
         if (username != null) {
             final MongoCredential cred;
             if (authDbName != null) {
@@ -110,9 +111,9 @@ public class MongoConnectorBuilder {
             } else {
                 cred = MongoCredential.createCredential(username, dbName, password.toCharArray());
             }
-            return Collections.singletonList(cred);
+            return cred;
         }
-        return Collections.emptyList();
+        return null;
     }
 
     private MongoClientOptions createOptions() {
@@ -125,12 +126,6 @@ public class MongoConnectorBuilder {
         }
         if (socketTimeoutMillis != null) {
             optionsBuilder.socketTimeout(socketTimeoutMillis);
-        }
-        if (socketKeepAlive != null) {
-            optionsBuilder.socketKeepAlive(socketKeepAlive);
-        }
-        if (threadsAllowedToBlockForConnectionMultiplier != null) {
-            optionsBuilder.threadsAllowedToBlockForConnectionMultiplier(threadsAllowedToBlockForConnectionMultiplier);
         }
         if (enableSSL != null) {
             optionsBuilder.sslEnabled(enableSSL);

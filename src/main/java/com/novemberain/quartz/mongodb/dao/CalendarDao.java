@@ -37,12 +37,12 @@ public class CalendarDao {
     }
 
     public int getCount() {
-        return (int) calendarCollection.count();
+        return (int) calendarCollection.countDocuments();
     }
 
     public boolean remove(String name) {
         Bson searchObj = Filters.eq(CALENDAR_NAME, name);
-        if (calendarCollection.count(searchObj) > 0) {
+        if (calendarCollection.countDocuments(searchObj) > 0) {
             calendarCollection.deleteMany(searchObj);
             return true;
         }

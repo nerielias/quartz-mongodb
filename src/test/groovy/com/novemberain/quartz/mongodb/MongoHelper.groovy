@@ -83,7 +83,7 @@ class MongoHelper {
      * Return number of elements in a collection.
      */
     static def getCount(String col) {
-        collections[col].count()
+        collections[col].countDocuments()
     }
 
     /**
